@@ -14,14 +14,14 @@
   "dependencies": {
     "@xyflow/react": "^12.10.2",
     "elkjs": "^0.11.1",
-    "hono": "4.11.1",
+    "hono": "4.12.21",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "zundo": "^2.3.0",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.15.3",
+    "@cloudflare/vite-plugin": "1.40.2",
     "@eslint/js": "9.39.1",
     "@playwright/test": "^1.52.0",
     "@types/node": "24.10.1",
@@ -35,7 +35,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.48.0",
     "vite": "^7.0.0",
-    "wrangler": "4.88.0"
+    "wrangler": "4.90.0"
   },
   "private": true,
   "scripts": {
