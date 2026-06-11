@@ -20,13 +20,22 @@ const selector = (state: AppStore) => ({
  */
 export function useWorkflowRunner() {
   const [logMessages, setLogMessages] = useState<string[]>([]);
-  const isRunning = useRef(false);
+  // `isRunning` drives the UI (e.g. the Run/Stop button) and must live in state
+  // so consumers re-render when it changes. The ref mirrors it for synchronous
+  // reads inside the async run loop, where a state snapshot would be stale.
+  const [isRunning, setIsRunning] = useState(false);
+  const isRunningRef = useRef(false);
   const { getNodes, setNodes, getEdges } = useAppStore(useShallow(selector));
 
-  const stopWorkflow = useCallback(() => {
-    isRunning.current = false;
-    setLogMessages((prev) => [...prev, 'Workflow stopped.']);
+  const setRunning = useCallback((running: boolean) => {
+    isRunningRef.current = running;
+    setIsRunning(running);
   }, []);
+
+  const stopWorkflow = useCallback(() => {
+    setRunning(false);
+    setLogMessages((prev) => [...prev, 'Workflow stopped.']);
+  }, [setRunning]);
 
   const resetNodeStatus = useCallback(() => {
     setNodes(
@@ -57,7 +66,7 @@ export function useWorkflowRunner() {
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      if (!isRunning.current) {
+      if (!isRunningRef.current) {
         resetNodeStatus();
         return;
       }
@@ -69,10 +78,10 @@ export function useWorkflowRunner() {
 
   const runWorkflow = useCallback(
     async (startNodeId?: string) => {
-      if (isRunning.current) return;
+      if (isRunningRef.current) return;
       const nodes = getNodes();
       const edges = getEdges();
-      isRunning.current = true;
+      setRunning(true);
 
       // for this demo, we'll start with the passed start node
       // or the first node that doesn't have any incoming edges
@@ -81,6 +90,7 @@ export function useWorkflowRunner() {
         nodes.find((node) => !edges.some((e) => e.target === node.id))?.id;
 
       if (!_startNodeId) {
+        setRunning(false);
         return;
       }
 
@@ -89,25 +99,24 @@ export function useWorkflowRunner() {
       const nodesToProcess = collectNodesToProcess(nodes, edges, _startNodeId);
 
       for (const node of nodesToProcess) {
-        if (!isRunning.current) break;
+        if (!isRunningRef.current) break;
         await processNode(node);
       }
 
-      if (isRunning.current) {
+      if (isRunningRef.current) {
         setLogMessages((prev) => [...prev, 'Workflow processing complete.']);
       }
 
-      isRunning.current = false;
+      setRunning(false);
     },
-    [getNodes, getEdges, processNode],
+    [getNodes, getEdges, processNode, setRunning],
   );
 
   return {
     logMessages,
     runWorkflow,
     stopWorkflow,
-    // eslint-disable-next-line react-hooks/refs -- demo runner exposes the live ref value on purpose
-    isRunning: isRunning.current,
+    isRunning,
   };
 }
 

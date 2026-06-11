@@ -54,7 +54,7 @@ const selector =
 // TODO: we need to streamline how we calculate the yOffset
 const yOffset = (type: 'source' | 'target') => (type === 'source' ? 100 : -130);
 
-function getIndicatorPostion(
+function getIndicatorPosition(
   nodePosition: XYPosition,
   x: number,
   y: number,
@@ -118,7 +118,7 @@ export function NodeHandle({
         type: nodeType,
         [type]: nodeId,
         [`${type}HandleId`]: id,
-        position: getIndicatorPostion(nodePosition, x, y, type),
+        position: getIndicatorPosition(nodePosition, x, y, type),
       });
 
       toggleDropdown();
@@ -135,7 +135,7 @@ export function NodeHandle({
   useEffect(() => {
     if (displayAddButton) {
       connectionSites.set(connectionId, {
-        position: getIndicatorPostion(nodePosition, x, y, type),
+        position: getIndicatorPosition(nodePosition, x, y, type),
         [type]: {
           node: nodeId,
           handle: id,

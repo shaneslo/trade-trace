@@ -107,8 +107,6 @@ export function createAppStore(
         ) {
           const layoutedNodes = await layoutGraph(nextNodes, get().edges);
           set({ nodes: layoutedNodes });
-        } else {
-          set({ nodes: nextNodes });
         }
       },
 
