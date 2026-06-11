@@ -202,7 +202,11 @@ export function createAppStore(
         const newEdge: AppEdge = {
           ...connection,
           type: 'workflow',
-          id: `${connection.source}-${connection.target}`,
+          // Include the handle ids so connections between the same two nodes on
+          // different handles (e.g. branch/join true/false) get unique ids that
+          // match the format produced by `createEdge`, which `addNodeInBetween`
+          // relies on when removing an edge.
+          id: `${connection.source}-${connection.sourceHandle}-${connection.target}-${connection.targetHandle}`,
           animated: true,
         };
 

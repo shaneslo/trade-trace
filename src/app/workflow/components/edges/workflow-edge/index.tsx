@@ -14,6 +14,7 @@ export function WorkflowEdge({
   source,
   sourceHandleId,
   target,
+  targetHandleId,
   style = {},
   markerEnd,
 }: EdgeProps<AppEdge>) {
@@ -41,6 +42,7 @@ export function WorkflowEdge({
         source={source}
         target={target}
         sourceHandleId={sourceHandleId}
+        targetHandleId={targetHandleId}
         style={{ ...style }}
       />
     </>
