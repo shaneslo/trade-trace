@@ -70,17 +70,21 @@ export function useAutoLayout() {
 
       if (nodes.length === 0) return;
 
-      const layouted = await computeLayout(nodes, edges, {
-        ...defaultOptions,
-        ...options,
-      });
+      try {
+        const layouted = await computeLayout(nodes, edges, {
+          ...defaultOptions,
+          ...options,
+        });
 
-      setNodes(layouted);
+        setNodes(layouted);
 
-      // Wait for React to render, then fit view
-      requestAnimationFrame(() => {
-        fitView({ padding: 0.2 });
-      });
+        // Wait for React to render, then fit view
+        requestAnimationFrame(() => {
+          fitView({ padding: 0.2 });
+        });
+      } catch (err) {
+        console.error('Auto-layout failed:', err);
+      }
     },
     [getNodes, getEdges, setNodes, fitView],
   );

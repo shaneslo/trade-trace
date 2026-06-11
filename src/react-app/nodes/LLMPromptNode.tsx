@@ -96,7 +96,7 @@ export function LLMPromptNode({ id, data }: NodeProps) {
           {status === 'running' ? 'Running...' : 'Run'}
         </button>
 
-        {data.output && (
+        {Boolean(data.output) && (
           <div
             data-testid="node-output"
             style={{
@@ -116,7 +116,7 @@ export function LLMPromptNode({ id, data }: NodeProps) {
           </div>
         )}
 
-        {data.error && (
+        {Boolean(data.error) && (
           <div
             data-testid="node-error"
             style={{

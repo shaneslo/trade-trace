@@ -92,7 +92,7 @@ export function DataSourceNode({ id, data }: NodeProps) {
           {status === 'running' ? 'Fetching...' : 'Fetch Data'}
         </button>
 
-        {data.output && (
+        {Boolean(data.output) && (
           <div
             data-testid="node-output"
             style={{
@@ -112,7 +112,7 @@ export function DataSourceNode({ id, data }: NodeProps) {
           </div>
         )}
 
-        {data.error && (
+        {Boolean(data.error) && (
           <div
             data-testid="node-error"
             style={{

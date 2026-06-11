@@ -36,6 +36,13 @@ app.post("/api/run", async (c) => {
     );
   }
 
+  if (!body.data || typeof body.data !== 'object' || !Array.isArray(body.inputs)) {
+    return c.json<RunResponse>(
+      { nodeId: body.nodeId, status: "error", output: null, error: "Invalid data or inputs structure" },
+      400,
+    );
+  }
+
   // Simulate node execution based on type
   switch (body.nodeType) {
     case "llmPrompt": {

@@ -112,7 +112,14 @@ function WorkflowCanvas() {
       const raw = e.dataTransfer.getData('application/reactflow');
       if (!raw) return;
 
-      const { type, data } = JSON.parse(raw);
+      let parsed: { type: string; data: Record<string, unknown> };
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        console.warn('Invalid JSON in application/reactflow drag payload');
+        return;
+      }
+      const { type, data } = parsed;
       const position = screenToFlowPosition({
         x: e.clientX,
         y: e.clientY,

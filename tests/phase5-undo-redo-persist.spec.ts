@@ -1,4 +1,31 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+async function dropNodeOnCanvas(
+  page: Page,
+  nodeType: string,
+  nodeData: Record<string, unknown>,
+  clientX = 500,
+  clientY = 300,
+) {
+  await page.evaluate(
+    ({ type, data, x, y }) => {
+      const pane = document.querySelector('.react-flow__pane');
+      if (!pane) return;
+      const dragOverEvent = new DragEvent('dragover', {
+        bubbles: true, cancelable: true,
+        dataTransfer: new DataTransfer(), clientX: x, clientY: y,
+      });
+      pane.dispatchEvent(dragOverEvent);
+      const dropEvent = new DragEvent('drop', {
+        bubbles: true, cancelable: true,
+        dataTransfer: new DataTransfer(), clientX: x, clientY: y,
+      });
+      dropEvent.dataTransfer!.setData('application/reactflow', JSON.stringify({ type, data }));
+      pane.dispatchEvent(dropEvent);
+    },
+    { type: nodeType, data: nodeData, x: clientX, y: clientY },
+  );
+}
 
 test.describe('Phase 5: Undo/Redo + Persistence', () => {
   test.beforeEach(async ({ page }) => {
@@ -29,24 +56,7 @@ test.describe('Phase 5: Undo/Redo + Persistence', () => {
     await expect(page.locator('.react-flow__node')).toHaveCount(1);
 
     // Add a node via drop
-    await page.evaluate(() => {
-      const pane = document.querySelector('.react-flow__pane');
-      if (!pane) return;
-      const dragOverEvent = new DragEvent('dragover', {
-        bubbles: true, cancelable: true,
-        dataTransfer: new DataTransfer(), clientX: 500, clientY: 300,
-      });
-      pane.dispatchEvent(dragOverEvent);
-      const dropEvent = new DragEvent('drop', {
-        bubbles: true, cancelable: true,
-        dataTransfer: new DataTransfer(), clientX: 500, clientY: 300,
-      });
-      dropEvent.dataTransfer!.setData(
-        'application/reactflow',
-        JSON.stringify({ type: 'dataSource', data: { sourceType: '1099-B', description: '', status: 'idle', output: null } }),
-      );
-      pane.dispatchEvent(dropEvent);
-    });
+    await dropNodeOnCanvas(page, 'dataSource', { sourceType: '1099-B', description: '', status: 'idle', output: null });
 
     await expect(page.locator('.react-flow__node')).toHaveCount(2);
 
@@ -63,24 +73,7 @@ test.describe('Phase 5: Undo/Redo + Persistence', () => {
 
   test('after undo, redo restores the node', async ({ page }) => {
     // Add a node
-    await page.evaluate(() => {
-      const pane = document.querySelector('.react-flow__pane');
-      if (!pane) return;
-      const dragOverEvent = new DragEvent('dragover', {
-        bubbles: true, cancelable: true,
-        dataTransfer: new DataTransfer(), clientX: 500, clientY: 300,
-      });
-      pane.dispatchEvent(dragOverEvent);
-      const dropEvent = new DragEvent('drop', {
-        bubbles: true, cancelable: true,
-        dataTransfer: new DataTransfer(), clientX: 500, clientY: 300,
-      });
-      dropEvent.dataTransfer!.setData(
-        'application/reactflow',
-        JSON.stringify({ type: 'dataSource', data: { sourceType: '1099-B', description: '', status: 'idle', output: null } }),
-      );
-      pane.dispatchEvent(dropEvent);
-    });
+    await dropNodeOnCanvas(page, 'dataSource', { sourceType: '1099-B', description: '', status: 'idle', output: null });
 
     await expect(page.locator('.react-flow__node')).toHaveCount(2);
 
@@ -99,24 +92,7 @@ test.describe('Phase 5: Undo/Redo + Persistence', () => {
 
   test('workflow state persists across page reloads', async ({ page }) => {
     // Add a node
-    await page.evaluate(() => {
-      const pane = document.querySelector('.react-flow__pane');
-      if (!pane) return;
-      const dragOverEvent = new DragEvent('dragover', {
-        bubbles: true, cancelable: true,
-        dataTransfer: new DataTransfer(), clientX: 500, clientY: 300,
-      });
-      pane.dispatchEvent(dragOverEvent);
-      const dropEvent = new DragEvent('drop', {
-        bubbles: true, cancelable: true,
-        dataTransfer: new DataTransfer(), clientX: 500, clientY: 300,
-      });
-      dropEvent.dataTransfer!.setData(
-        'application/reactflow',
-        JSON.stringify({ type: 'dataSource', data: { sourceType: '1099-DIV', description: 'Q4 dividends', status: 'idle', output: null } }),
-      );
-      pane.dispatchEvent(dropEvent);
-    });
+    await dropNodeOnCanvas(page, 'dataSource', { sourceType: '1099-DIV', description: 'Q4 dividends', status: 'idle', output: null });
 
     await expect(page.locator('.react-flow__node')).toHaveCount(2);
 

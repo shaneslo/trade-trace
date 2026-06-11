@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { temporal } from 'zundo';
 import {
@@ -82,7 +82,13 @@ export const useWorkflowStore = create<WorkflowState>()(
           const inputs = incomingEdges
             .map((e) => {
               const sourceNode = nodes.find((n) => n.id === e.source);
-              return sourceNode ? { text: sourceNode.data.output?.text ?? '' } : { text: '' };
+              if (!sourceNode?.data.output) return { text: '' };
+              const output = sourceNode.data.output;
+              if (typeof output === 'string') return { text: output };
+              if (typeof output === 'object' && output !== null && 'text' in output) {
+                return { text: String((output as Record<string, unknown>).text ?? '') };
+              }
+              return { text: JSON.stringify(output) };
             })
             .filter(Boolean);
 
@@ -97,6 +103,12 @@ export const useWorkflowStore = create<WorkflowState>()(
                 inputs,
               }),
             });
+
+            if (!res.ok) {
+              const errorText = await res.text();
+              updateNodeData(nodeId, { status: 'error', error: `HTTP ${res.status}: ${errorText}` });
+              return;
+            }
 
             const result = await res.json();
 
@@ -134,7 +146,5 @@ export const useWorkflowStore = create<WorkflowState>()(
 
 // Export undo/redo helpers as a reactive hook
 export const useTemporalStore = () => {
-  const store = useWorkflowStore.temporal;
-  const state = store((s) => s);
-  return state;
+  return useStore(useWorkflowStore.temporal);
 };

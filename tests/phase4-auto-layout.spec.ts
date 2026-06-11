@@ -56,7 +56,7 @@ test.describe('Phase 4: Auto-Layout with ELK', () => {
     expect(moved).toBe(true);
   });
 
-  test('vertical layout button repositions nodes vertically', async ({ page }) => {
+  test('vertical layout keeps nodes visible', async ({ page }) => {
     // Add a second node
     await page.evaluate(() => {
       const pane = document.querySelector('.react-flow__pane');
@@ -89,8 +89,8 @@ test.describe('Phase 4: Auto-Layout with ELK', () => {
     await expect(page.locator('.react-flow__node').first()).toBeVisible();
   });
 
-  test('layout works with connected nodes', async ({ page }) => {
-    // Add a second node and connect them
+  test('layout works with multiple disconnected nodes', async ({ page }) => {
+    // Add a second node
     await page.evaluate(() => {
       const pane = document.querySelector('.react-flow__pane');
       if (!pane) return;
@@ -112,7 +112,7 @@ test.describe('Phase 4: Auto-Layout with ELK', () => {
 
     await expect(page.locator('.react-flow__node')).toHaveCount(2);
 
-    // Click layout - should not crash even without edges
+    // Click layout - nodes are not connected but layout should still work
     await page.locator('[data-testid="layout-horizontal"]').click();
     await page.waitForTimeout(500);
 
