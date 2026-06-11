@@ -25,9 +25,8 @@ export type WorkflowState = {
   runNode: (nodeId: string) => Promise<void>;
 };
 
-let nodeIdCounter = 1;
 export function getNextNodeId() {
-  return `node-${++nodeIdCounter}`;
+  return `node-${crypto.randomUUID()}`;
 }
 
 const initialNodes: Node[] = [
@@ -133,5 +132,9 @@ export const useWorkflowStore = create<WorkflowState>()(
   ),
 );
 
-// Export undo/redo helpers
-export const useTemporalStore = () => useWorkflowStore.temporal.getState();
+// Export undo/redo helpers as a reactive hook
+export const useTemporalStore = () => {
+  const store = useWorkflowStore.temporal;
+  const state = store((s) => s);
+  return state;
+};

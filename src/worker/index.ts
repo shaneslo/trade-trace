@@ -19,7 +19,15 @@ interface RunResponse {
 }
 
 app.post("/api/run", async (c) => {
-  const body = await c.req.json<RunRequest>();
+  let body: RunRequest;
+  try {
+    body = await c.req.json<RunRequest>();
+  } catch {
+    return c.json<RunResponse>(
+      { nodeId: "", status: "error", output: null, error: "Invalid JSON in request body" },
+      400,
+    );
+  }
 
   if (!body.nodeId || !body.nodeType) {
     return c.json<RunResponse>(
