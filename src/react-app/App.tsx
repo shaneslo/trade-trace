@@ -1,66 +1,169 @@
-// src/App.tsx
+import { useCallback } from 'react';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Background,
+  Controls,
+  MiniMap,
+  Panel,
+  useReactFlow,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import cloudflareLogo from "./assets/Cloudflare_Logo.svg";
-import honoLogo from "./assets/hono.svg";
-import "./App.css";
+import { useWorkflowStore, useTemporalStore, getNextNodeId } from './store';
+import { nodeTypes } from './nodes';
+import { Sidebar } from './Sidebar';
+import { useAutoLayout } from './useAutoLayout';
 
-function App() {
-	const [count, setCount] = useState(0);
-	const [name, setName] = useState("unknown");
+function ToolbarPanel() {
+  const { layoutNodes } = useAutoLayout();
+  const { undo, redo, pastStates, futureStates } = useTemporalStore();
 
-	return (
-		<>
-			<div>
-				<a href="https://vite.dev" target="_blank">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-				<a href="https://hono.dev/" target="_blank">
-					<img src={honoLogo} className="logo cloudflare" alt="Hono logo" />
-				</a>
-				<a href="https://workers.cloudflare.com/" target="_blank">
-					<img
-						src={cloudflareLogo}
-						className="logo cloudflare"
-						alt="Cloudflare logo"
-					/>
-				</a>
-			</div>
-			<h1>Vite + React + Hono + Cloudflare</h1>
-			<div className="card">
-				<button
-					onClick={() => setCount((count) => count + 1)}
-					aria-label="increment"
-				>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<div className="card">
-				<button
-					onClick={() => {
-						fetch("/api/")
-							.then((res) => res.json() as Promise<{ name: string }>)
-							.then((data) => setName(data.name));
-					}}
-					aria-label="get name"
-				>
-					Name from API is: {name}
-				</button>
-				<p>
-					Edit <code>worker/index.ts</code> to change the name
-				</p>
-			</div>
-			<p className="read-the-docs">Click on the logos to learn more</p>
-		</>
-	);
+  return (
+    <Panel position="top-right">
+      <div style={{ display: 'flex', gap: '4px' }}>
+        <button
+          data-testid="undo-btn"
+          onClick={() => undo()}
+          disabled={pastStates.length === 0}
+          title="Undo (Ctrl+Z)"
+          style={{
+            padding: '6px 10px',
+            borderRadius: '4px',
+            border: '1px solid #444',
+            backgroundColor: pastStates.length === 0 ? '#1a1a1a' : '#2a2a2a',
+            color: pastStates.length === 0 ? '#666' : '#fff',
+            fontSize: '11px',
+            cursor: pastStates.length === 0 ? 'not-allowed' : 'pointer',
+          }}
+        >
+          Undo
+        </button>
+        <button
+          data-testid="redo-btn"
+          onClick={() => redo()}
+          disabled={futureStates.length === 0}
+          title="Redo (Ctrl+Shift+Z)"
+          style={{
+            padding: '6px 10px',
+            borderRadius: '4px',
+            border: '1px solid #444',
+            backgroundColor: futureStates.length === 0 ? '#1a1a1a' : '#2a2a2a',
+            color: futureStates.length === 0 ? '#666' : '#fff',
+            fontSize: '11px',
+            cursor: futureStates.length === 0 ? 'not-allowed' : 'pointer',
+          }}
+        >
+          Redo
+        </button>
+        <div style={{ width: '1px', backgroundColor: '#444', margin: '0 4px' }} />
+        <button
+          data-testid="layout-horizontal"
+          onClick={() => layoutNodes({ direction: 'RIGHT' })}
+          style={{
+            padding: '6px 10px',
+            borderRadius: '4px',
+            border: '1px solid #444',
+            backgroundColor: '#2a2a2a',
+            color: '#fff',
+            fontSize: '11px',
+            cursor: 'pointer',
+          }}
+        >
+          Layout →
+        </button>
+        <button
+          data-testid="layout-vertical"
+          onClick={() => layoutNodes({ direction: 'DOWN' })}
+          style={{
+            padding: '6px 10px',
+            borderRadius: '4px',
+            border: '1px solid #444',
+            backgroundColor: '#2a2a2a',
+            color: '#fff',
+            fontSize: '11px',
+            cursor: 'pointer',
+          }}
+        >
+          Layout ↓
+        </button>
+      </div>
+    </Panel>
+  );
 }
 
-export default App;
+function WorkflowCanvas() {
+  const nodes = useWorkflowStore((s) => s.nodes);
+  const edges = useWorkflowStore((s) => s.edges);
+  const onNodesChange = useWorkflowStore((s) => s.onNodesChange);
+  const onEdgesChange = useWorkflowStore((s) => s.onEdgesChange);
+  const onConnect = useWorkflowStore((s) => s.onConnect);
+  const addNode = useWorkflowStore((s) => s.addNode);
+  const { screenToFlowPosition } = useReactFlow();
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const raw = e.dataTransfer.getData('application/reactflow');
+      if (!raw) return;
+
+      let parsed: { type: string; data: Record<string, unknown> };
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        console.warn('Invalid JSON in application/reactflow drag payload');
+        return;
+      }
+      const { type, data } = parsed;
+      const position = screenToFlowPosition({
+        x: e.clientX,
+        y: e.clientY,
+      });
+
+      addNode({
+        id: getNextNodeId(),
+        type,
+        position,
+        data,
+      });
+    },
+    [addNode, screenToFlowPosition],
+  );
+
+  return (
+    <div style={{ flex: 1, height: '100%' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+        fitView
+      >
+        <Background gap={16} />
+        <Controls />
+        <MiniMap zoomable pannable />
+        <ToolbarPanel />
+      </ReactFlow>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ReactFlowProvider>
+      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+        <Sidebar />
+        <WorkflowCanvas />
+      </div>
+    </ReactFlowProvider>
+  );
+}
