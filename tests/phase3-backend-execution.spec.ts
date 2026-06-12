@@ -99,6 +99,23 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
     expect(body.error).toContain('Unknown node type');
   });
 
+
+  test('/api/run returns error for invalid JSON request body', async ({ request }) => {
+    // By passing a Buffer or a string with malformed JSON, and specifying application/json,
+    // Hono will attempt to parse it as JSON and fail.
+    const res = await request.post('/api/run', {
+      data: Buffer.from('{ "nodeId": "123", "nodeType": "llmPrompt", }'), // trailing comma makes it invalid JSON
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.status).toBe('error');
+    expect(body.error).toContain('Invalid JSON in request body');
+  });
+
   test('/api/run returns error for missing nodeId', async ({ request }) => {
     const res = await request.post('/api/run', {
       data: {
