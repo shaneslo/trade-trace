@@ -230,11 +230,7 @@ export function createAppStore(
             continue;
           }
 
-          if (
-            options?.type &&
-            options.type &&
-            options.type === connectionSite.type
-          ) {
+          if (options?.type && options.type === connectionSite.type) {
             continue;
           }
 

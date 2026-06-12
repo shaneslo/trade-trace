@@ -2,7 +2,7 @@ import { type Edge } from '@xyflow/react';
 import ELK, { ElkNode, ElkPort } from 'elkjs/lib/elk.bundled.js';
 
 import { type AppNode } from '@/app/workflow/components/nodes';
-import { nodesConfig } from '../config';
+import { nodesConfig, NODE_SIZE } from '../config';
 
 const layoutOptions = {
   'elk.algorithm': 'layered',
@@ -83,8 +83,8 @@ export async function layoutGraph(nodes: AppNode[], edges: Edge[]) {
 
       acc.push({
         id: node.id,
-        width: node.width ?? node.measured?.width ?? 150,
-        height: node.height ?? node.measured?.height ?? 50,
+        width: node.width ?? node.measured?.width ?? NODE_SIZE.width,
+        height: node.height ?? node.measured?.height ?? NODE_SIZE.height,
         ports: [createPort(node.id, 'SOUTH'), ...targetPorts, ...sourcePorts],
         layoutOptions: {
           'org.eclipse.elk.portConstraints': 'FIXED_ORDER',

@@ -98,16 +98,20 @@ export function useWorkflowRunner() {
 
       const nodesToProcess = collectNodesToProcess(nodes, edges, _startNodeId);
 
-      for (const node of nodesToProcess) {
-        if (!isRunningRef.current) break;
-        await processNode(node);
-      }
+      try {
+        for (const node of nodesToProcess) {
+          if (!isRunningRef.current) break;
+          await processNode(node);
+        }
 
-      if (isRunningRef.current) {
-        setLogMessages((prev) => [...prev, 'Workflow processing complete.']);
+        if (isRunningRef.current) {
+          setLogMessages((prev) => [...prev, 'Workflow processing complete.']);
+        }
+      } finally {
+        // Always clear the running state, even if a node throws mid-run,
+        // so the workflow can be started again.
+        setRunning(false);
       }
-
-      setRunning(false);
     },
     [getNodes, getEdges, processNode, setRunning],
   );
