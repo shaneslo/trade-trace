@@ -112,6 +112,30 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
     const body = await res.json();
     expect(body.status).toBe('error');
   });
+  test('/api/run endpoint correctly handles malformed inputs to prevent crashes', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-secure',
+        nodeType: 'llmPrompt',
+        data: { model: 'gpt-4', systemPrompt: 'Test prompt' },
+        // Malformed inputs that could crash the server if not handled correctly
+        inputs: [
+          null,
+          undefined,
+          "invalid string input",
+          123,
+          { text: 'valid text' },
+          { otherKey: 'value without text' }
+        ],
+      },
+    });
+
+    expect(res.ok()).toBe(true);
+    const body = await res.json();
+    expect(body.nodeId).toBe('test-secure');
+    expect(body.status).toBe('success');
+    expect(body.output.text).toContain('valid text');
+  });
 
   test('DataSource node Run button works end-to-end', async ({ page }) => {
     // Drop a DataSource node

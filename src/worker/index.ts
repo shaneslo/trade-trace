@@ -48,7 +48,7 @@ app.post("/api/run", async (c) => {
     case "llmPrompt": {
       const model = (body.data.model as string) ?? "gpt-4";
       const systemPrompt = (body.data.systemPrompt as string) ?? "";
-      const inputText = body.inputs.map((i) => i.text ?? "").join("\n");
+      const inputText = body.inputs.map((i) => (i && typeof i === "object" ? (i as Record<string, unknown>).text : "") ?? "").join("\n");
 
       // Mock LLM response (in production, call OpenAI/Anthropic via CF AI Gateway)
       const output = {
