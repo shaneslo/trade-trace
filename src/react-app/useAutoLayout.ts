@@ -48,8 +48,15 @@ async function computeLayout(
 
   const layoutedGraph = await elk.layout(graph);
 
+  const childrenMap = new Map<string, ElkNode>();
+  if (layoutedGraph.children) {
+    for (const child of layoutedGraph.children) {
+      childrenMap.set(child.id, child);
+    }
+  }
+
   return nodes.map((node) => {
-    const elkNode = layoutedGraph.children?.find((n) => n.id === node.id);
+    const elkNode = childrenMap.get(node.id);
     if (elkNode) {
       return {
         ...node,
