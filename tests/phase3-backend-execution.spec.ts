@@ -146,4 +146,23 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
     const status = dsNode.locator('[data-testid="node-status"]');
     await expect(status).toHaveText('success');
   });
+
+  test('/api/run endpoint handles non-string systemPrompt and model safely', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-secure',
+        nodeType: 'llmPrompt',
+        data: { model: 12345, systemPrompt: { malicious: "object" } },
+        inputs: [{ text: 'hello' }],
+      },
+    });
+
+    expect(res.ok()).toBe(true);
+    const body = await res.json();
+    expect(body.nodeId).toBe('test-secure');
+    expect(body.status).toBe('success');
+    expect(body.output.model).toBe('12345');
+    // Ensure the systemPrompt was converted to string "[object Object]" and sliced properly
+    expect(body.output.text).toContain('[object Object]');
+  });
 });

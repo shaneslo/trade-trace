@@ -46,8 +46,8 @@ app.post("/api/run", async (c) => {
   // Simulate node execution based on type
   switch (body.nodeType) {
     case "llmPrompt": {
-      const model = (body.data.model as string) ?? "gpt-4";
-      const systemPrompt = (body.data.systemPrompt as string) ?? "";
+      const model = typeof body.data.model === "string" ? body.data.model : String(body.data.model ?? "gpt-4");
+      const systemPrompt = typeof body.data.systemPrompt === "string" ? body.data.systemPrompt : String(body.data.systemPrompt ?? "");
       const inputText = body.inputs.map((i) => i.text ?? "").join("\n");
 
       // Mock LLM response (in production, call OpenAI/Anthropic via CF AI Gateway)
@@ -61,7 +61,7 @@ app.post("/api/run", async (c) => {
     }
 
     case "dataSource": {
-      const sourceType = (body.data.sourceType as string) ?? "1099-B";
+      const sourceType = typeof body.data.sourceType === "string" ? body.data.sourceType : String(body.data.sourceType ?? "1099-B");
       // Mock data source fetch
       const output = {
         records: Math.floor(Math.random() * 1000) + 100,
