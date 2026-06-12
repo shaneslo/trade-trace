@@ -84,10 +84,11 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
   });
 
   test('/api/run returns error for unknown node type', async ({ request }) => {
+    const randomType = 'randomType_' + Math.random().toString(36).substring(7);
     const res = await request.post('/api/run', {
       data: {
         nodeId: 'test-3',
-        nodeType: 'unknownType',
+        nodeType: randomType,
         data: {},
         inputs: [],
       },
@@ -95,8 +96,10 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
 
     expect(res.status()).toBe(400);
     const body = await res.json();
+    expect(body.nodeId).toBe('test-3');
     expect(body.status).toBe('error');
-    expect(body.error).toContain('Unknown node type');
+    expect(body.output).toBeNull();
+    expect(body.error).toBe(`Unknown node type: ${randomType}`);
   });
 
   test('/api/run returns error for missing nodeId', async ({ request }) => {
@@ -110,7 +113,41 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
 
     expect(res.status()).toBe(400);
     const body = await res.json();
+    expect(body.nodeId).toBe('');
     expect(body.status).toBe('error');
+    expect(body.output).toBeNull();
+    expect(body.error).toBe('Missing nodeId or nodeType');
+  });
+
+  test('/api/run returns error for invalid JSON body', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: 'invalid json string'
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.nodeId).toBe('');
+    expect(body.status).toBe('error');
+    expect(body.output).toBeNull();
+    expect(body.error).toBe('Invalid JSON in request body');
+  });
+
+  test('/api/run returns error for invalid data or inputs structure', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-4',
+        nodeType: 'llmPrompt',
+        data: 'not an object', // invalid data
+        inputs: {}, // not an array
+      },
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.nodeId).toBe('test-4');
+    expect(body.status).toBe('error');
+    expect(body.output).toBeNull();
+    expect(body.error).toBe('Invalid data or inputs structure');
   });
 
   test('DataSource node Run button works end-to-end', async ({ page }) => {
