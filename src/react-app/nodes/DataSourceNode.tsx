@@ -1,5 +1,6 @@
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { useWorkflowStore, NodeStatus } from '../store';
+import { NodeOutput, NodeError } from './NodeOutput';
 
 const statusColors: Record<NodeStatus, string> = {
   idle: '#0ea5e9',
@@ -92,41 +93,8 @@ export function DataSourceNode({ id, data }: NodeProps) {
           {status === 'running' ? 'Fetching...' : 'Fetch Data'}
         </button>
 
-        {Boolean(data.output) && (
-          <div
-            data-testid="node-output"
-            style={{
-              marginTop: '4px',
-              padding: '6px',
-              backgroundColor: '#f0fdf4',
-              borderRadius: '4px',
-              fontSize: '11px',
-              maxHeight: '80px',
-              overflow: 'auto',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {typeof data.output === 'object'
-              ? JSON.stringify(data.output, null, 2)
-              : String(data.output)}
-          </div>
-        )}
-
-        {Boolean(data.error) && (
-          <div
-            data-testid="node-error"
-            style={{
-              marginTop: '4px',
-              padding: '6px',
-              backgroundColor: '#fef2f2',
-              borderRadius: '4px',
-              fontSize: '11px',
-              color: '#dc2626',
-            }}
-          >
-            {String(data.error)}
-          </div>
-        )}
+        <NodeOutput output={data.output} />
+        <NodeError error={data.error} />
       </div>
 
       <Handle type="source" position={Position.Right} id="output-1" />
