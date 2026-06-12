@@ -1,0 +1,157 @@
+
+import { useState, useRef, useCallback } from 'react';
+import { useShallow } from 'zustand/react/shallow';
+
+import { useAppStore } from '@/app/workflow/store';
+import { AppNode } from '@/app/workflow/components/nodes';
+import { AppEdge } from '@/app/workflow/components/edges';
+import { AppStore } from '@/app/workflow/store/app-store';
+
+const selector = (state: AppStore) => ({
+  getNodes: state.getNodes,
+  setNodes: state.setNodes,
+  getEdges: state.getEdges,
+});
+
+/**
+ * This is a demo workflow runner that runs a simplified version of a workflow.
+ * You can customize how nodes are processed by overriding `processNode` or
+ * even replacing the entire `collectNodesToProcess` function with your own logic.
+ */
+export function useWorkflowRunner() {
+  const [logMessages, setLogMessages] = useState<string[]>([]);
+  // `isRunning` drives the UI (e.g. the Run/Stop button) and must live in state
+  // so consumers re-render when it changes. The ref mirrors it for synchronous
+  // reads inside the async run loop, where a state snapshot would be stale.
+  const [isRunning, setIsRunning] = useState(false);
+  const isRunningRef = useRef(false);
+  const { getNodes, setNodes, getEdges } = useAppStore(useShallow(selector));
+
+  const setRunning = useCallback((running: boolean) => {
+    isRunningRef.current = running;
+    setIsRunning(running);
+  }, []);
+
+  const stopWorkflow = useCallback(() => {
+    setRunning(false);
+    setLogMessages((prev) => [...prev, 'Workflow stopped.']);
+  }, [setRunning]);
+
+  const resetNodeStatus = useCallback(() => {
+    setNodes(
+      getNodes().map((node) => ({
+        ...node,
+        data: { ...node.data, status: 'initial' },
+      })),
+    );
+  }, [getNodes, setNodes]);
+
+  const updateNodeStatus = useCallback(
+    (nodeId: string, status: string) => {
+      setNodes(
+        getNodes().map((node) =>
+          node.id === nodeId
+            ? ({ ...node, data: { ...node.data, status } } as AppNode)
+            : node,
+        ),
+      );
+    },
+    [setNodes, getNodes],
+  );
+
+  const processNode = useCallback(
+    async (node: AppNode) => {
+      updateNodeStatus(node.id, 'loading');
+      setLogMessages((prev) => [...prev, `${node.data.title} processing...`]);
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      if (!isRunningRef.current) {
+        resetNodeStatus();
+        return;
+      }
+
+      updateNodeStatus(node.id, 'success');
+    },
+    [updateNodeStatus, resetNodeStatus],
+  );
+
+  const runWorkflow = useCallback(
+    async (startNodeId?: string) => {
+      if (isRunningRef.current) return;
+      const nodes = getNodes();
+      const edges = getEdges();
+      setRunning(true);
+
+      // for this demo, we'll start with the passed start node
+      // or the first node that doesn't have any incoming edges
+      const _startNodeId =
+        startNodeId ||
+        nodes.find((node) => !edges.some((e) => e.target === node.id))?.id;
+
+      if (!_startNodeId) {
+        setRunning(false);
+        return;
+      }
+
+      setLogMessages(['Starting workflow...']);
+
+      const nodesToProcess = collectNodesToProcess(nodes, edges, _startNodeId);
+
+      try {
+        for (const node of nodesToProcess) {
+          if (!isRunningRef.current) break;
+          await processNode(node);
+        }
+
+        if (isRunningRef.current) {
+          setLogMessages((prev) => [...prev, 'Workflow processing complete.']);
+        }
+      } finally {
+        // Always clear the running state, even if a node throws mid-run,
+        // so the workflow can be started again.
+        setRunning(false);
+      }
+    },
+    [getNodes, getEdges, processNode, setRunning],
+  );
+
+  return {
+    logMessages,
+    runWorkflow,
+    stopWorkflow,
+    isRunning,
+  };
+}
+
+/**
+ * This is a very simplified example of how you might traverse a graph and collect nodes to process.
+ * It's not meant to be used in production, but you can use it as a starting point for your own logic.
+ */
+function collectNodesToProcess(
+  nodes: AppNode[],
+  edges: AppEdge[],
+  startNodeId: string,
+) {
+  const nodesToProcess: AppNode[] = [];
+  const visited = new Set();
+
+  function visit(nodeId: string) {
+    if (visited.has(nodeId)) return;
+    visited.add(nodeId);
+
+    const node = nodes.find((n) => n.id === nodeId);
+    if (!node) return;
+
+    nodesToProcess.push(node);
+
+    const outgoingEdges = edges.filter((e) => e.source === nodeId);
+    for (const edge of outgoingEdges) {
+      visit(edge.target);
+    }
+  }
+
+  visit(startNodeId);
+
+  return nodesToProcess;
+}
