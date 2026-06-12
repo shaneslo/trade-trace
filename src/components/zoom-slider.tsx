@@ -44,6 +44,8 @@ export function ZoomSlider({
           variant="ghost"
           size="icon"
           onClick={() => zoomOut({ duration: 300 })}
+          aria-label="Zoom out"
+          title="Zoom out"
         >
           <Minus className="h-4 w-4" />
         </Button>
@@ -57,11 +59,14 @@ export function ZoomSlider({
           max={maxZoom}
           step={0.01}
           onValueChange={(values) => zoomTo(values[0])}
+          aria-label="Zoom level"
         />
         <Button
           variant="ghost"
           size="icon"
           onClick={() => zoomIn({ duration: 300 })}
+          aria-label="Zoom in"
+          title="Zoom in"
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -75,6 +80,8 @@ export function ZoomSlider({
         )}
         variant="ghost"
         onClick={() => zoomTo(1, { duration: 300 })}
+        aria-label="Reset zoom"
+        title="Reset zoom"
       >
         {(100 * zoom).toFixed(0)}%
       </Button>
@@ -82,6 +89,8 @@ export function ZoomSlider({
         variant="ghost"
         size="icon"
         onClick={() => fitView({ duration: 300 })}
+        aria-label="Fit to view"
+        title="Fit to view"
       >
         <Maximize className="h-4 w-4" />
       </Button>

@@ -15,7 +15,7 @@ export function WorkflowControls() {
         position="bottom-right"
         className="bg-card text-foreground rounded-md"
       >
-        <Button onClick={runLayout} variant="ghost">
+        <Button onClick={runLayout} variant="ghost" aria-label="Auto-layout nodes" title="Auto-layout nodes">
           <Route />
         </Button>
       </Panel>

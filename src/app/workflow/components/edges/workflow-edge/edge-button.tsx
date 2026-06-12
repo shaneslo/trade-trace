@@ -112,6 +112,8 @@ export function EdgeButton({
               'border-red-500': isPotentialConnection,
             },
           )}
+          aria-label="Insert node"
+          title="Insert node"
         >
           <span className="relative -top-px select-none">+</span>
         </Button>

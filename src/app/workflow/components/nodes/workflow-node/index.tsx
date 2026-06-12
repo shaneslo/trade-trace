@@ -39,10 +39,10 @@ function WorkflowNode({
         <BaseNodeHeader>
           {IconComponent ? <IconComponent aria-label={data?.icon} /> : null}
           <BaseNodeHeaderTitle>{data?.title}</BaseNodeHeaderTitle>
-          <Button variant="ghost" className="nodrag px-1!" onClick={onPlay}>
+          <Button variant="ghost" className="nodrag px-1!" onClick={onPlay} aria-label="Run node" title="Run node">
             <Play className="stroke-blue-500 fill-blue-500" />
           </Button>
-          <Button variant="ghost" className="nodrag px-1!" onClick={onRemove}>
+          <Button variant="ghost" className="nodrag px-1!" onClick={onRemove} aria-label="Remove node" title="Remove node">
             <Trash />
           </Button>
         </BaseNodeHeader>
