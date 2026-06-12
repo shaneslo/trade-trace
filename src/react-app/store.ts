@@ -79,9 +79,10 @@ export const useWorkflowStore = create<WorkflowState>()(
           updateNodeData(nodeId, { status: 'running', output: null, error: undefined });
 
           const incomingEdges = edges.filter((e) => e.target === nodeId);
+          const nodesMap = new Map(nodes.map((n) => [n.id, n]));
           const inputs = incomingEdges
             .map((e) => {
-              const sourceNode = nodes.find((n) => n.id === e.source);
+              const sourceNode = nodesMap.get(e.source);
               if (!sourceNode?.data.output) return { text: '' };
               const output = sourceNode.data.output;
               if (typeof output === 'string') return { text: output };
