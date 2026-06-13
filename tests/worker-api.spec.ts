@@ -87,6 +87,19 @@ test.describe('Worker /api/run endpoint', () => {
     expect(body.error).toBe('sourceType must be a string');
   });
 
+  test('returns a 400 error for an invalid JSON request body', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      // Trailing comma makes this invalid JSON, which Hono fails to parse.
+      data: Buffer.from('{ "nodeId": "123", "nodeType": "llmPrompt", }'),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.status).toBe('error');
+    expect(body.error).toBe('Invalid JSON in request body');
+  });
+
   test('returns an error for an unknown node type', async ({ request }) => {
     const res = await request.post('/api/run', {
       data: {
