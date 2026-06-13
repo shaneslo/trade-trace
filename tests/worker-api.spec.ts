@@ -38,6 +38,55 @@ test.describe('Worker /api/run endpoint', () => {
     expect(body.output.sample).toHaveLength(2);
   });
 
+  test('returns a 400 error when systemPrompt is not a string', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-dos',
+        nodeType: 'llmPrompt',
+        // A large array would previously be stringified before slice(0, 50), a DoS path
+        data: { model: 'gpt-4', systemPrompt: new Array(100000).fill('x') },
+        inputs: [{ text: 'hello' }],
+      },
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.status).toBe('error');
+    expect(body.error).toBe('systemPrompt must be a string');
+  });
+
+  test('returns a 400 error when model is not a string', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-model',
+        nodeType: 'llmPrompt',
+        data: { model: 12345, systemPrompt: 'Test prompt' },
+        inputs: [{ text: 'hello' }],
+      },
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.status).toBe('error');
+    expect(body.error).toBe('model must be a string');
+  });
+
+  test('returns a 400 error when sourceType is not a string', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-source',
+        nodeType: 'dataSource',
+        data: { sourceType: { malicious: 'object' } },
+        inputs: [],
+      },
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.status).toBe('error');
+    expect(body.error).toBe('sourceType must be a string');
+  });
+
   test('returns an error for an unknown node type', async ({ request }) => {
     const res = await request.post('/api/run', {
       data: {

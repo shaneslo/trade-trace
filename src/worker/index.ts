@@ -46,6 +46,18 @@ app.post("/api/run", async (c) => {
   // Simulate node execution based on type
   switch (body.nodeType) {
     case "llmPrompt": {
+      if (body.data.model != null && typeof body.data.model !== "string") {
+        return c.json<RunResponse>(
+          { nodeId: body.nodeId, status: "error", output: null, error: "model must be a string" },
+          400,
+        );
+      }
+      if (body.data.systemPrompt != null && typeof body.data.systemPrompt !== "string") {
+        return c.json<RunResponse>(
+          { nodeId: body.nodeId, status: "error", output: null, error: "systemPrompt must be a string" },
+          400,
+        );
+      }
       const model = (body.data.model as string) ?? "gpt-4";
       const systemPrompt = (body.data.systemPrompt as string) ?? "";
       const inputText = body.inputs.map((i) => i.text ?? "").join("\n");
@@ -61,6 +73,12 @@ app.post("/api/run", async (c) => {
     }
 
     case "dataSource": {
+      if (body.data.sourceType != null && typeof body.data.sourceType !== "string") {
+        return c.json<RunResponse>(
+          { nodeId: body.nodeId, status: "error", output: null, error: "sourceType must be a string" },
+          400,
+        );
+      }
       const sourceType = (body.data.sourceType as string) ?? "1099-B";
       // Mock data source fetch
       const output = {
