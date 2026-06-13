@@ -88,10 +88,11 @@ test.describe('Worker /api/run endpoint', () => {
   });
 
   test('returns an error for an unknown node type', async ({ request }) => {
+    const unknownType = 'unknownType';
     const res = await request.post('/api/run', {
       data: {
         nodeId: 'test-3',
-        nodeType: 'unknownType',
+        nodeType: unknownType,
         data: {},
         inputs: [],
       },
@@ -99,8 +100,41 @@ test.describe('Worker /api/run endpoint', () => {
 
     expect(res.status()).toBe(400);
     const body = await res.json();
+    expect(body.nodeId).toBe('test-3');
     expect(body.status).toBe('error');
-    expect(body.error).toContain('Unknown node type');
+    expect(body.output).toBeNull();
+    expect(body.error).toBe(`Unknown node type: ${unknownType}`);
+  });
+
+  test('returns an error for an invalid JSON body', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: 'invalid json string',
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.nodeId).toBe('');
+    expect(body.status).toBe('error');
+    expect(body.output).toBeNull();
+    expect(body.error).toBe('Invalid JSON in request body');
+  });
+
+  test('returns an error for an invalid data or inputs structure', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-4',
+        nodeType: 'llmPrompt',
+        data: 'not an object', // invalid data
+        inputs: {}, // not an array
+      },
+    });
+
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.nodeId).toBe('test-4');
+    expect(body.status).toBe('error');
+    expect(body.output).toBeNull();
+    expect(body.error).toBe('Invalid data or inputs structure');
   });
 
   test('returns an error when nodeId is missing', async ({ request }) => {
