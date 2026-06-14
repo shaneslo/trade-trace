@@ -177,8 +177,10 @@ export function NodeHandle({
             'border-red-500': isPotentialConnection,
           },
         )}
+        aria-label="Add node"
+        title="Add node"
       >
-        <span className="relative -top-px select-none" aria-label="Add node">
+        <span className="relative -top-px select-none" aria-hidden="true">
           +
         </span>
       </Button>
