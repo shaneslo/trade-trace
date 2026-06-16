@@ -38,8 +38,9 @@ test.describe('Workflow Editor Template', () => {
   });
 
   test('renders edges between the seeded nodes', async ({ page }) => {
-    await page.waitForSelector('.react-flow__edge');
-    expect(await page.locator('.react-flow__edge').count()).toBeGreaterThan(0);
+    await page.waitForFunction(() => document.querySelectorAll('.react-flow__edge-path').length > 0);
+    const edges = await page.locator('.react-flow__edge-path').all();
+    expect(edges.length).toBeGreaterThan(0);
   });
 
   test('shows the Run Workflow button and toggles to Stop', async ({ page }) => {

@@ -38,16 +38,18 @@ function SettingsItem({
   );
 }
 
-export function SettingsDialog() {
+export function SettingsDialog({ children }: { children?: React.ReactNode }) {
   const { setTheme } = useTheme();
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="flex items-center gap-2 w-full rounded-md p-2 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-          <Settings2 className="w-4 h-4 shrink-0" />
-          <span>Settings</span>
-        </button>
+        {children || (
+          <button className="flex items-center gap-2 w-full rounded-md p-2 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Settings2 className="w-4 h-4 shrink-0" />
+            <span>Settings</span>
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
