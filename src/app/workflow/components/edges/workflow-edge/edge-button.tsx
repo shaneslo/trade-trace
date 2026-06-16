@@ -115,7 +115,7 @@ export function EdgeButton({
           aria-label="Insert node"
           title="Insert node"
         >
-          <span className="relative -top-px select-none">+</span>
+          <span className="relative -top-px select-none" aria-hidden="true">+</span>
         </Button>
       </div>
       {isOpen && (
