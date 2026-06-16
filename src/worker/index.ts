@@ -52,9 +52,14 @@ app.post("/api/run", async (c) => {
           400,
         );
       }
-
-      const model = body.data.model ?? "gpt-4";
-      const systemPrompt = typeof body.data.systemPrompt === "string" ? body.data.systemPrompt : String(body.data.systemPrompt ?? "");
+      if (body.data.systemPrompt != null && typeof body.data.systemPrompt !== "string") {
+        return c.json<RunResponse>(
+          { nodeId: body.nodeId, status: "error", output: null, error: "systemPrompt must be a string" },
+          400,
+        );
+      }
+      const model = (body.data.model as string) ?? "gpt-4";
+      const systemPrompt = (body.data.systemPrompt as string) ?? "";
       const inputText = body.inputs.map((i) => i.text ?? "").join("\n");
 
       // Mock LLM response (in production, call OpenAI/Anthropic via CF AI Gateway)
@@ -68,7 +73,13 @@ app.post("/api/run", async (c) => {
     }
 
     case "dataSource": {
-      const sourceType = typeof body.data.sourceType === "string" ? body.data.sourceType : String(body.data.sourceType ?? "1099-B");
+      if (body.data.sourceType != null && typeof body.data.sourceType !== "string") {
+        return c.json<RunResponse>(
+          { nodeId: body.nodeId, status: "error", output: null, error: "sourceType must be a string" },
+          400,
+        );
+      }
+      const sourceType = (body.data.sourceType as string) ?? "1099-B";
       // Mock data source fetch
       const output = {
         records: Math.floor(Math.random() * 1000) + 100,
