@@ -165,4 +165,21 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
     // Ensure the systemPrompt was converted to string "[object Object]" and sliced properly
     expect(body.output.text).toContain('[object Object]');
   });
+
+  test('/api/run endpoint handles non-string sourceType safely', async ({ request }) => {
+    const res = await request.post('/api/run', {
+      data: {
+        nodeId: 'test-source-coerce',
+        nodeType: 'dataSource',
+        data: { sourceType: 2025, description: 'Test' },
+        inputs: [],
+      },
+    });
+
+    expect(res.ok()).toBe(true);
+    const body = await res.json();
+    expect(body.nodeId).toBe('test-source-coerce');
+    expect(body.status).toBe('success');
+    expect(body.output.sourceType).toBe('2025');
+  });
 });
