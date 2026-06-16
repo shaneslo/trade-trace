@@ -1,6 +1,6 @@
 
 import { useState, useCallback, ComponentProps, useRef } from 'react';
-import { Command, GripVertical, Plus } from 'lucide-react';
+import { Command, GripVertical, Plus, Settings2 } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useReactFlow } from '@xyflow/react';
 
@@ -48,9 +48,12 @@ export function AppSidebar(props: ComponentProps<typeof Sidebar>) {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <SettingsDialog />
-                </SidebarMenuButton>
+                <SettingsDialog>
+                  <SidebarMenuButton tooltip="Settings">
+                    <Settings2 />
+                    <span>Settings</span>
+                  </SidebarMenuButton>
+                </SettingsDialog>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

@@ -1,3 +1,7 @@
 ## 2024-11-20 - Missing ARIA Labels on Core Editor Controls
 **Learning:** Found that numerous icon-only buttons across the workflow editor (like Zoom controls, node actions, and auto-layout) lacked `aria-label`s. This pattern is common when using purely icon-based designs for visual minimalism, but it severely degrades accessibility for screen readers.
 **Action:** Always verify that every `Button` with only an icon has an `aria-label` (and optionally `title` for mouse users) so the intent is clear both audibly and visually.
+
+## 2024-12-07 - asChild Prop Accessibilty Loss with Custom Components
+**Learning:** Found that using shadcn's `asChild` prop to render custom functional components (e.g. `<SidebarMenuButton asChild><SettingsDialog /></SidebarMenuButton>`) silently swallows all accessibility attributes, styling classes, and keyboard event handlers. `asChild` relies on `React.cloneElement` and works best with native HTML tags or components that explicitly forward refs and props. When passed a component that doesn't forward them, the trigger loses its focus ring, tooltips, and structural markup (like `data-sidebar="menu-button"`).
+**Action:** Always verify keyboard accessibility (focus ring and Enter/Space trigger) when combining `asChild` with custom components. If the custom component can't be easily modified to forward refs and props, invert the composition: wrap the dialog provider around the UI component acting as the trigger instead.
