@@ -147,7 +147,7 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
     await expect(status).toHaveText('success');
   });
 
-  test('/api/run endpoint handles non-string systemPrompt and model safely', async ({ request }) => {
+  test('/api/run endpoint returns 400 for non-string model', async ({ request }) => {
     const res = await request.post('/api/run', {
       data: {
         nodeId: 'test-secure',
@@ -157,13 +157,11 @@ test.describe('Phase 3: Backend Execution via /api/run', () => {
       },
     });
 
-    expect(res.ok()).toBe(true);
+    expect(res.status()).toBe(400);
     const body = await res.json();
     expect(body.nodeId).toBe('test-secure');
-    expect(body.status).toBe('success');
-    expect(body.output.model).toBe('12345');
-    // Ensure the systemPrompt was converted to string "[object Object]" and sliced properly
-    expect(body.output.text).toContain('[object Object]');
+    expect(body.status).toBe('error');
+    expect(body.error).toBe('model must be a string');
   });
 
   test('/api/run endpoint handles non-string sourceType safely', async ({ request }) => {

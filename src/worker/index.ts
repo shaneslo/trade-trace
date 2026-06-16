@@ -46,7 +46,14 @@ app.post("/api/run", async (c) => {
   // Simulate node execution based on type
   switch (body.nodeType) {
     case "llmPrompt": {
-      const model = typeof body.data.model === "string" ? body.data.model : String(body.data.model ?? "gpt-4");
+      if (body.data.model != null && typeof body.data.model !== "string") {
+        return c.json<RunResponse>(
+          { nodeId: body.nodeId, status: "error", output: null, error: "model must be a string" },
+          400,
+        );
+      }
+
+      const model = body.data.model ?? "gpt-4";
       const systemPrompt = typeof body.data.systemPrompt === "string" ? body.data.systemPrompt : String(body.data.systemPrompt ?? "");
       const inputText = body.inputs.map((i) => i.text ?? "").join("\n");
 
