@@ -5,3 +5,6 @@
 ## 2026-06-14 - Accessible tooltips and ARIA positioning
 **Learning:** Found a pattern where `aria-label` attributes were placed on inner `<span>` wrappers (like the `+` sign for "Add node") instead of the interactive `<Button>` element itself. Also, icon-only buttons like the Theme toggle were missing `title` attributes, denying sighted users helpful tooltips.
 **Action:** When working with icon-only buttons, ensure the `<Button>` itself has the `aria-label` and `title` attributes. Inner text or icon spans should use `aria-hidden="true"` to prevent screen readers from redundantly announcing visual symbols (like "plus").
+## 2026-06-18 - Accessible tooltips and ARIA positioning
+**Learning:** Found a pattern where `aria-label` attributes were placed on inner `<span>` wrappers (like the `+` sign for "Add node") instead of the interactive `<Button>` element itself. Also, icon-only buttons like the Theme toggle were missing `title` attributes, denying sighted users helpful tooltips.
+**Action:** When working with icon-only buttons, ensure the `<Button>` itself has the `aria-label` and `title` attributes. Inner text or icon spans should use `aria-hidden="true"` to prevent screen readers from redundantly announcing visual symbols (like "plus").
