@@ -46,7 +46,7 @@ export function SettingsDialog({ children }: { children?: React.ReactNode }) {
       <DialogTrigger asChild>
         {children || (
           <button className="flex items-center gap-2 w-full rounded-md p-2 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Settings2 className="w-4 h-4 shrink-0" />
+            <Settings2 className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>Settings</span>
           </button>
         )}
@@ -62,10 +62,9 @@ export function SettingsDialog({ children }: { children?: React.ReactNode }) {
         >
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" title="Toggle theme">
-                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                <span className="sr-only">Toggle theme</span>
+              <Button variant="outline" size="icon" title="Toggle theme" aria-label="Toggle theme">
+                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" aria-hidden="true" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
