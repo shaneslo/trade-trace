@@ -1,6 +1,8 @@
-# Workflow Editor Template
+# Trade Trace
 
-The Workflow Editor is an application designed to help you quickly create, manage, and visualize workflows. Built with [React Flow UI](https://reactflow.dev/ui) and styled using [Tailwind CSS](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/), this project provides a highly customizable foundation for building and extending workflow editors.
+Trade Trace is an application designed to help you quickly create, manage, and visualize workflows. Built with [React Flow UI](https://reactflow.dev/ui) and styled using [Tailwind CSS](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/), this project provides a highly customizable foundation for building and extending workflow editors.
+
+![Trade Trace homepage](docs/assets/homepage.png)
 
 > This build runs on **Vite** with a **Hono** API on **Cloudflare Workers** (instead of Next.js), so you get the same React Flow UI editor with edge deployment out of the box.
 
@@ -23,24 +25,12 @@ To get started, follow these steps:
 
    ```bash
    npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   # or
-   bun install
    ```
 
 2. **Run the development server**:
 
    ```bash
    npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   # or
-   bun dev
    ```
 
 3. Open your browser and navigate to `http://localhost:5173`.

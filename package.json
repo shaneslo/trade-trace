@@ -1,8 +1,8 @@
 {
-  "name": "vite-react-template1",
-  "description": "A workflow editor template built with React Flow, Tailwind CSS and shadcn/ui, running on Vite + Hono + Cloudflare Workers",
+  "name": "trade-trace",
+  "description": "Trade Trace workflow tooling built with React Flow, Tailwind CSS and shadcn/ui, running on Vite + Hono + Cloudflare Workers",
   "cloudflare": {
-    "label": "Workflow Editor Template",
+    "label": "Trade Trace",
     "products": [
       "Workers"
     ],
@@ -60,10 +60,12 @@
   "scripts": {
     "build": "tsc -b && vite build",
     "cf-typegen": "wrangler types",
-    "check": "tsc && vite build && wrangler deploy --dry-run",
+    "check": "npm run check:lockfiles && tsc && vite build && wrangler deploy --dry-run",
+    "check:lockfiles": "node scripts/check-lockfiles.mjs",
     "deploy": "wrangler deploy",
     "dev": "vite",
     "lint": "eslint .",
+    "preinstall": "node scripts/check-lockfiles.mjs",
     "preview": "npm run build && vite preview",
     "test:e2e": "playwright test"
   },

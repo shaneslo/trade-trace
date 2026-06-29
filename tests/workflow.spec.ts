@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Workflow Editor Template', () => {
+test.describe('Trade Trace workflow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.react-flow');
@@ -11,8 +11,8 @@ test.describe('Workflow Editor Template', () => {
     await expect(page.locator('.react-flow__background')).toBeVisible();
   });
 
-  test('sidebar shows the Workflow Editor heading', async ({ page }) => {
-    await expect(page.getByText('Workflow Editor')).toBeVisible();
+  test('sidebar shows the Trade Trace heading', async ({ page }) => {
+    await expect(page.getByText('Trade Trace')).toBeVisible();
   });
 
   test('sidebar lists all configured node types', async ({ page }) => {

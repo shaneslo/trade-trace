@@ -35,7 +35,7 @@ export function AppSidebar(props: ComponentProps<typeof Sidebar>) {
           <div className="flex aspect-square size-5 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
             <Command className="size-3" />
           </div>
-          <span className="truncate font-semibold">Workflow Editor</span>
+          <span className="truncate font-semibold">Trade Trace</span>
         </div>
         <SidebarMenu>
           {Object.values(nodesConfig).map((item) => (
