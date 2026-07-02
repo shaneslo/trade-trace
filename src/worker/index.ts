@@ -2,7 +2,7 @@ import { Hono } from "hono";
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.get("/api/", (c) => c.json({ name: "GS Tax Ops Workflow" }));
+app.get("/api/", (c) => c.json({ name: "Trade Trace" }));
 
 interface RunRequest {
   nodeId: string;
