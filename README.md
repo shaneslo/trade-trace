@@ -1,5 +1,13 @@
 # Trade Trace
 
+> [!IMPORTANT]
+> **Status: deprecated; archival pending.** The read-only
+> [`/tax-ops-mapper`](https://github.com/workslo/05_vibe-flow-pro/tree/main/src/app/tax-ops-mapper)
+> workspace in [`workslo/05_vibe-flow-pro`](https://github.com/workslo/05_vibe-flow-pro)
+> supersedes this repository. Do not start new work here. No matching Worker
+> script was present in the connected Cloudflare account on July 28, 2026.
+> Check any other Cloudflare accounts or deployment targets before retirement.
+
 Trade Trace is an application designed to help you quickly create, manage, and visualize workflows. Built with [React Flow UI](https://reactflow.dev/ui) and styled using [Tailwind CSS](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/), this project provides a highly customizable foundation for building and extending workflow editors.
 
 ![Trade Trace homepage](docs/assets/homepage.png)
